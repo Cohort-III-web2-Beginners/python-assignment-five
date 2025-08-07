@@ -120,56 +120,64 @@ output =
    *---------------------------------------*
 """
 
-# Existing users database (sample)
 users_db = {
-    "core": {"username": "core", "password": 1212, "balance": 5000},
-    "tk": {"username": "tk", "password": 1212, "balance": 4500},
-    "mp": {"username": "mp", "password": 1212, "balance": 5000}
+    "core": {"username": "core", "password": 1212, "balance": 5000, "is_verified": False},
+    "tk": {"username": "tk", "password": 1212, "balance": 4500, "is_verified": False},
+    "mp": {"username": "mp", "password": 1212, "balance": 5000, "is_verified": False}
 }
 
 verification_cost = 1500.0
+print("==============================================")
+print("=== WELCOME TO BLOCKFUSELABS PORTAL SYSTEM ===")
+print("==============================================")
 
-print("WELCOME TO BLOCKFUSELABS PORTAL SYSTEM")
-print("======================================")
 print("Type 'register' to create a new account")
 print("Type 'login' to access an existing account")
-print("======================================\n")
+
 
 # Ask the user what they want to do
 action = input("Enter action (register/login): ").strip().lower()
 
 if action == "register":
     new_user = input("Enter a username to register: ").strip()
-    confirm_user = input("Confirm username: ").strip()
 
-    if new_user == confirm_user:
-        balance = float(input("Enter your account balance: "))
-        password1 = int(input("Enter password: "))
-        confirm1 = int(input("Confirm password: "))
-
-        if password1 == confirm1:
-            # Save new user
-            users_db[new_user] = {
-                "username": new_user,
-                "password": password1,
-                "balance": balance
-            }
-            print("User registered successfully!")
-
-            # Verification option
-            verify = input(f"Do you want to verify your account for ₦{verification_cost}? (yes/no): ").strip().lower()
-            if verify == "yes":
-                if users_db[new_user]["balance"] >= verification_cost:
-                    users_db[new_user]["balance"] -= verification_cost
-                    print("Account verified successfully!")
-                else:
-                    print(f"Insufficient funds. You need at least ₦{verification_cost}.")
-        else:
-            print("Passwords do not match.")
+#to check if username already exists
+    if new_user in users_db:
+        print(f"Username '{new_user}' already exists. Please try a different username.\n")
     else:
-        print("Username confirmation failed.")
+        confirm_user = input("Confirm username: ").strip()
 
-# LOGIN
+        if new_user == confirm_user:
+            balance = float(input("Enter your account balance: "))
+            password1 = int(input("Enter password: "))
+            confirm1 = int(input("Confirm password: "))
+
+            if password1 == confirm1:
+                users_db[new_user] = {
+                    "username": new_user,
+                    "password": password1,
+                    "balance": balance,
+                    "is_verified": False
+                }
+                print("User registered successfully!")
+ #verification
+                print(f"Would you like to verify your account for ₦{verification_cost}? (yes/no)")
+                choice = input("Your choice: ").strip().lower()
+
+                if choice == "yes":
+                    if users_db[new_user]["balance"] >= verification_cost:
+                        users_db[new_user]["balance"] -= verification_cost
+                        users_db[new_user]["is_verified"] = True
+                        print("Account verified successfully!")
+                    else:
+                        print(f"Insufficient balance! You have ₦{users_db[new_user]['balance']}, but ₦{verification_cost} is required.")
+
+                print("Registration completed. You can now login.")
+            else:
+                print("Passwords do not match.")
+        else:
+            print("Usernames do not match.")
+
 elif action == "login":
     login_user = input("Enter username: ").strip()
     if login_user in users_db:
@@ -179,10 +187,11 @@ elif action == "login":
             print("Login successful!")
             print(f"Username: {login_user}")
             print(f"Balance: ₦{users_db[login_user]['balance']}")
+            print("Verified:", "Yes" if users_db[login_user]["is_verified"] else "No")
         else:
             print("Incorrect password.")
     else:
         print("User does not exist.")
 else:
     print("Invalid action selected.")
- 
+
